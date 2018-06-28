@@ -5,13 +5,23 @@ const { app } = require('./../server');
 const { Todo } = require('./../model/todo');
 
 
+const todos = [{ text: 'first test todo' }, { text: 'seccond test todo' },
+{
+    text: 'third test todo'
+
+}]
+
+
+
 
 // before each is gonna run before the every testcases  
 beforeEach((done) => {
     //todo.remove works same like db.collection.remove
     Todo.remove({}).then(() => {
-        done();
-    })
+
+        return Todo.insertMany(todos);
+
+    }).then(() => done())
 
 });
 
@@ -37,7 +47,7 @@ describe('POST /index', () => {
                 }
                 // here we are checking our todo is added to the database or not
                 Todo.find().then((todos) => { //todo.find is the method which is working just like db.collection.find
-                    expect(todos.length).toBe(1);
+                    expect(todos.length).toBe(4);
                     expect(todos[0].text).toBe(text);
                     done();
 
@@ -60,11 +70,11 @@ describe('POST /index', () => {
                     console.log(err);
 
                 Todo.find().then((todos) => {
-                    expect((todos.length)).toBe(0);
+                    expect((todos.length)).toBe(3);
                     done();
 
 
-                }).catch( (e) => done(e))  
+                }).catch((e) => done(e))
 
 
             })
@@ -77,4 +87,25 @@ describe('POST /index', () => {
 
 
 
-}) 
+})
+
+
+
+describe('GET / todos ', () => {
+
+    it('should get all todos', (done) => {
+
+        request(app)
+            .get('/todos')
+            .expect(200)
+            .expect((res) => {
+
+                expect(res.body.todos.length).toBe(3);
+
+            
+
+    }).end(done);
+       
+
+})
+})
